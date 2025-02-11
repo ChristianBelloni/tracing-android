@@ -8,7 +8,12 @@
 //!
 //! [Android NDK]: https://developer.android.com/ndk/reference/group/logging#__android_log_write
 
+use tracing::Subscriber;
+use tracing_subscriber::Layer;
+
+#[cfg(any(doc, target_os = "android"))]
 mod android;
+#[cfg(any(doc, target_os = "android"))]
 mod layer;
 
 /// Constructs a [`layer::Layer`] with the given `tag`.
@@ -23,3 +28,15 @@ mod layer;
 pub fn layer(tag: &str) -> std::io::Result<layer::Layer> {
     layer::Layer::new(tag)
 }
+
+mod layer {
+    pub struct Layer;
+
+    impl Layer {
+        pub fn new(_: &str) -> std::io::Result<Self> {
+            Ok(Self)
+        }
+    }
+}
+
+impl<T: Subscriber> Layer<T> for layer::Layer {}
